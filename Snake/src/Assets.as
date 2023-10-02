@@ -1,3 +1,9 @@
+/**
+ * AS3Games
+ * Copyright 2023 Roman Lysenko
+ * Email: romanlysenkoua@gmail.com
+ */
+
 package {
 
     public class Assets {
