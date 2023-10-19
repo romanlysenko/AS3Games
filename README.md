@@ -1,5 +1,5 @@
 # AS3Games
-A collection of various games in ActionScript 3 language.
+A collection of various games in ActionScript 3 language
 
 #### List of games
 <ol>
