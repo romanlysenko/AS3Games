@@ -1,9 +1,3 @@
-/**
- * AS3Games
- * Copyright 2023 Roman Lysenko
- * Email: romanlysenkoua@gmail.com
- */
-
 package {
     import flash.display.Shape;
 

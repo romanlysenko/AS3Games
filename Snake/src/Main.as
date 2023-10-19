@@ -1,16 +1,17 @@
-/**
- * AS3Games
- * Copyright 2023 Roman Lysenko
- * Email: romanlysenkoua@gmail.com
- */
-
 package {
     import flash.display.DisplayObject;
     import flash.display.Sprite;
     import flash.events.Event;
     import flash.events.KeyboardEvent;
     import flash.events.TimerEvent;
+    import flash.text.TextFormat;
+    import flash.text.TextField;
+    import flash.text.TextFieldAutoSize;
+    import flash.text.AntiAliasType;
+    import flash.text.GridFitType;
     import flash.utils.Timer;
+
+    import ascb.util.NumberFormat;
 
     [SWF(width="640", height="480", backgroundColor="#333333", frameRate="60")]
     public class Main extends Sprite {
@@ -40,6 +41,11 @@ package {
         private var timer:Timer;
         private var speed:Number = 200;
 
+        private var textFormat:TextFormat;
+        private var numberFormat:NumberFormat;
+        private var score:int = 0;
+        private var scoreTextField:TextField;
+
         public function Main() {
             if (stage) {
                 initialize();
@@ -59,6 +65,7 @@ package {
             drawCurrentLevel(levels, currentLevel);
 
             // TODO: Need to add information about score, current level, etc.
+            createInfoPanel();
 
             createSnake();
 
@@ -67,7 +74,7 @@ package {
             createFood();
 
             // TODO: Find out if this is necessary
-            //stage.focus = stage;
+            stage.focus = stage;
 
             stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPress);
 
@@ -150,6 +157,33 @@ package {
                     }
                 }
             }
+        }
+
+        // TODO: Need refactoring
+        private function createInfoPanel():void {
+            textFormat = new TextFormat();
+            textFormat.font = "Emulogic";
+            textFormat.size = 16;
+            textFormat.color = 0xffffff;
+
+            numberFormat = new NumberFormat("000000");
+
+            scoreTextField = new TextField();
+            scoreTextField.border = false;
+            scoreTextField.x = 363;
+            scoreTextField.y = 73;
+            //scoreTextField.width = 100;
+            //scoreTextField.height = 40;
+            scoreTextField.embedFonts = true;
+            scoreTextField.selectable = false;
+            scoreTextField.mouseEnabled = false;
+            scoreTextField.autoSize = TextFieldAutoSize.LEFT;
+            scoreTextField.antiAliasType = AntiAliasType.ADVANCED;
+            scoreTextField.sharpness = 400;
+            scoreTextField.gridFitType = GridFitType.PIXEL;
+            scoreTextField.defaultTextFormat = textFormat;
+            scoreTextField.text = "SCORE\n" + numberFormat.format(score);
+            addChild(scoreTextField);
         }
 
         private function createSnake():void {
@@ -239,6 +273,9 @@ package {
 
             if (borderCrossing()) {
                 if (foodCollision()) {
+                    // TODO: Need refactoring (separate function)
+                    score += 3;
+                    scoreTextField.text = "SCORE\n" + numberFormat.format(score);
                     addSegment();
                     createFood();
                 }
@@ -249,6 +286,9 @@ package {
             }
 
             if (foodCollision()) {
+                // TODO: Need refactoring (separate function)
+                score += 3;
+                scoreTextField.text = "SCORE\n" + numberFormat.format(score);
                 addSegment();
                 createFood();
             }
