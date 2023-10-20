@@ -28,6 +28,6 @@ src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Adobe_AIR_logo.sv
 2. Download and install AIR runtime for Windows or MacOS (https://airsdk.harman.com/runtime)
 3. Download AIR SDK and unzip the archive to any location on your disk (https://airsdk.harman.com/download)
 4. Install the Flash/Flex plugin in IntelliJ IDEA Ultimate (https://plugins.jetbrains.com/plugin/14508-flash-flex)
-5. Create "New Project", select "Flash" project and connect the previously downloaded AIR SDK as shown in the pictures:
+5. Create "New Project", select "Flash" project and connect the previously downloaded AIR SDK as shown in the pictures:<br>
 <img src="images/1.png" width="640"/><br><img src="images/2.png" width="640"/><br><img src="images/3.png" width="640"/>
 6. Download or clone (https://github.com/romanlysenko/AS3Games.git) this repository and open it in IntelliJ IDEA Ultimate
