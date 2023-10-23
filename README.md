@@ -29,4 +29,4 @@ src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Adobe_AIR_logo.sv
 3. Download AIR SDK and unzip the archive to any location on your disk (https://airsdk.harman.com/download)
 4. Install the Flash/Flex plugin in IntelliJ IDEA Ultimate (https://plugins.jetbrains.com/plugin/14508-flash-flex)
 5. Configure the plugin by connecting the previously downloaded AIR SDK
-6. Download or clone (https://github.com/romanlysenko/AS3Games.git) this repository and open any project in IntelliJ IDEA Ultimate
+6. Download or clone this (https://github.com/romanlysenko/AS3Games.git) repository and open any project in IntelliJ IDEA Ultimate
