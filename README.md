@@ -10,8 +10,6 @@ A collection of various games in ActionScript 3 language.
 <li>...</li>
 </ol>
 
-Some games require the <a href="http://useflashpunk.net/">FlashPunk</a> engine. Just download it and place it in the src folder with the project.
-
 ## Requirements
 
 ### Supported IDEs
