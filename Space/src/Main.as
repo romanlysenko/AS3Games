@@ -6,7 +6,7 @@ package {
     import flash.utils.Timer;
     import flash.events.TimerEvent;
 
-    [SWF(width="640", height="480", backgroundColor="#333333", frameRate="60")]
+    [SWF(width="640", height="480", backgroundColor="#333333", frameRate="30")]
     public class Main extends Sprite {
         private const LEFT_BORDER:int = 112;
         private const RIGHT_BORDER:int = 272;
@@ -22,8 +22,16 @@ package {
         private var hero:DisplayObject;
         private var bullet:DisplayObject;
 
+        private var leftPressed:Boolean = false;
+        private var rightPressed:Boolean = false;
+        private var xPressed:Boolean = false;
+        private var lastShootTime:Number = 0;
+
+        // Firing interval in milliseconds
+        private var shootInterval:Number = 500;
+
         private var timer:Timer;
-        private var speed:Number = 1000;
+        private var speed:Number = 1500;
 
         public function Main() {
             if (stage) {
@@ -49,8 +57,11 @@ package {
             // TODO: Find out if this is necessary
             stage.focus = stage;
 
-            // Adding keyboard event listener
-            stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPress);
+            // Adding keyboard event listeners
+            stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+            stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+
+            addEventListener(Event.ENTER_FRAME, onEnterFrame);
 
             // Creating timer
             timer = new Timer(speed, 0);
@@ -101,22 +112,73 @@ package {
             }
         }
 
-        private function keyPress(event:KeyboardEvent):void {
-            // key "Left"
-            if (event.keyCode == 37) {
+        private function onKeyDown(e:KeyboardEvent):void {
+            if (e.keyCode == 37) { // key "Left"
+                leftPressed = true;
+            } else if (e.keyCode == 39) { // key "Right"
+                rightPressed = true;
+            } else if (e.keyCode == 88) { // key "X"
+                xPressed = true;
+            }
+        }
+
+        private function onKeyUp(e:KeyboardEvent):void {
+            if (e.keyCode == 37) { // key "Left"
+                leftPressed = false;
+            } else if (e.keyCode == 39) { // key "Right"
+                rightPressed = false;
+            } else if (e.keyCode == 88) { // key "X"
+                xPressed = false;
+            }
+        }
+
+        private function onEnterFrame(e:Event):void {
+            if (leftPressed) {
+                // Changing the driving speed
                 hero.x -= TILE_SIZE;
+
+                if (hero.x < LEFT_BORDER) {
+                    hero.x = LEFT_BORDER;
+                }
             }
 
-            // key "Right"
-            if (event.keyCode == 39) {
+            if (rightPressed) {
+                // Changing the driving speed
                 hero.x += TILE_SIZE;
+
+                if (hero.x > RIGHT_BORDER - TILE_SIZE) {
+                    hero.x = RIGHT_BORDER - TILE_SIZE;
+                }
             }
 
-            // key "X"
-            if (event.keyCode == 88) {
-                // TODO: Create a method for shooting
-                shootBullet();
+            if (xPressed) {
+                var currentTime:Number = new Date().getTime();
+
+                if (currentTime - lastShootTime > shootInterval) {
+                    shootBullet();
+                    lastShootTime = currentTime;
+                }
             }
+
+            if (bullet) {
+                bullet.y -= TILE_SIZE;
+
+                if (bullet.y < TOP_BORDER) {
+                    removeBullet();
+                } else {
+                    checkBulletCollision();
+                }
+            }
+        }
+
+        private function checkCollisionWithHero():Boolean {
+            for each (var enemy:DisplayObject in enemies) {
+                if (enemy.y >= hero.y) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private function shootBullet():void {
@@ -126,25 +188,15 @@ package {
                 bullet.x = hero.x;
                 bullet.y = hero.y;
                 addChild(bullet);
-                addEventListener(Event.ENTER_FRAME, onEnterFrame);
-            }
-        }
-
-        private function onEnterFrame(e:Event):void {
-            if (bullet) {
-                bullet.y -= TILE_SIZE;
-                if (bullet.y < TOP_BORDER) {
-                    removeBullet();
-                } else {
-                    checkBulletCollision();
-                }
             }
         }
 
         private function checkBulletCollision():void {
             for (var i:int = 0; i < enemies.length; i++) {
                 var enemy:DisplayObject = enemies[i];
-                if (bullet.x == enemy.x && bullet.y == enemy.y) {
+
+                if (bullet.x < enemy.x + 16 && bullet.x + 16 > enemy.x &&
+                        bullet.y < enemy.y + 16 && bullet.y + 16 > enemy.y) {
                     removeChild(enemy);
                     enemies.splice(i, 1);
                     removeBullet();
@@ -156,7 +208,6 @@ package {
         private function removeBullet():void {
             removeChild(bullet);
             bullet = null;
-            removeEventListener(Event.ENTER_FRAME, onEnterFrame);
         }
 
         private function update(event:TimerEvent):void {
@@ -165,11 +216,19 @@ package {
                 enemy.y += TILE_SIZE;
             }
 
+            // Checking for enemy collisions with the player
+            if (checkCollisionWithHero()) {
+                finalize();
+                return;
+            }
+
             // Creating a new row of enemies
             createEnemies();
         }
 
+        // End game
         private function finalize():void {
+            // Stop timer
             if (timer.running) {
                 timer.stop();
             }
@@ -177,29 +236,30 @@ package {
             timer.removeEventListener(TimerEvent.TIMER, update);
             timer = null;
 
-            stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyPress);
-
-            removeHero();
-
-            removeEnemies();
-
-            removeChild(gameBackground);
-            gameBackground = null;
-        }
-
-        private function removeHero():void {
-            removeChild(hero);
-            hero = null;
-        }
-
-        private function removeEnemies():void {
-            if (enemies.length > 0) {
-                for (var i:int = 0; i < enemies.length; i++) {
-                    removeChild(enemies[i]);
-                }
+            // Remove all enemies
+            for each (var enemy:DisplayObject in enemies) {
+                removeChild(enemy);
             }
 
             enemies = null;
+
+            // Remove player
+            removeChild(hero);
+            hero = null;
+
+            // Remove the bullet if there is one
+            if (bullet) {
+                removeBullet();
+            }
+
+            stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+            stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+
+            // Remove frame handler
+            removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+
+            // Display a message about the end of the game
+            trace("Game Over");
         }
     }
 }
